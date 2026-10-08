@@ -27,23 +27,21 @@ user_by_name = user_data_by_username()
 st.write(user_by_name)
 # form -> username dan password (tipe password) 2 2 nya wajib pake required ya 
 # hint -> https://docs.streamlit.io/develop/api-reference/widgets/st.text_input
-username = st.text_input("Username")
-password = st.text_input("Password", type="password")
+username = st.text_input("Username",placeholder="Masukkan username")
+password = st.text_input("Password", type="password", placeholder="Masukkan password")
 
 # submit -> st.button(label="Login", type="primary")
 # Kondisi -> jika role yang login peserta alihin nya ke event langsung dan ga boleh buka dashboard
 # Kalau salah st.error "Login gagal! Silahkan coba kembali"
 if st.button(label="Login", type="primary"):
     if username in user_by_name and user_by_name[username]["password"] == password:
-        st.session_state.logged_in = True
-        st.session_state.username = username
+        st.session_state['logged_in'] = True
+        st.session_state['username'] = username
+        st.session_state['password'] = password
         role = user_by_name[username]["role"]
         if role == "Peserta":
             st.switch_page("pages/event.py")
-        if role == "Admin":
+        elif role == "Admin":
             st.switch_page("pages/dashboard.py")
     else:
         st.error("Login gagal. Silakan coba lagi.")
-
-
-

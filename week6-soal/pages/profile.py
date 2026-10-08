@@ -19,22 +19,23 @@ password_baru = st.text_input("Password Baru", type="password")
 # Silahkan kalau mau baca baca ini hehe ga wajib ya-> https://discuss.streamlit.io/t/buttons-alignment/51929
 col1, space, col2 = st.columns([1,3,1])
 with col1:
-    # Buat tombol logout st.button("logout", type="primary") keluar ke app.py
+# Buat tombol logout st.button("logout", type="primary") keluar ke app.py
     if st.button("logout", type="primary"):
-        st.switch_page("app.py")
         st.session_state.logged_in = False
         st.session_state.username = None
-        st.rerun()
+        st.session_state.username = None
+        st.switch_page("app.py")
         
 with col2:
+# Ini untuk ubah password st.button("Ganti Data", type="secondary", width=400)
+# Kondisi -> Password baru dan lama ga boleh sama 
+# Jika sama -> st.error("ga boleh sama wok")
+# jika beda ubah melalui variabel 'user' lalu tampilkan st.success("Berhasil")
     if st.button("Ganti Data", type="secondary", width=400):
-        if password_lama != user["password"]:
+        if password_baru == password_lama:
             st.error("ga boleh sama wok")
         else:
-            user["password"] = password_baru
+            user_data["password"] = password_baru
+            st.session_state.password = password_baru
             st.success("Berhasil")
-    # Ini untuk ubah password st.button("Ganti Data", type="secondary", width=400)
-    # Kondisi -> Password baru dan lama ga boleh sama 
-    # Jika sama -> st.error("ga boleh sama wok")
-    # jika beda ubah melalui variabel 'user' lalu tampilkan st.success("Berhasil")
-
+  
