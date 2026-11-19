@@ -1,0 +1,251 @@
+### JAWABAN LATIHAN MODUL 13 – STORED PROCEDURE
+
+### LATIHAN 1 – VARIABEL
+
+1.a. getOfficeByCountry
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE getOfficeByCountry(
+    IN countryName VARCHAR(255)
+)
+BEGIN
+    SELECT *
+    FROM offices
+    WHERE country = countryName;
+END$$
+DELIMITER ;
+```
+
+1.b. Memanggil SP untuk USA
+
+```sql
+CALL getOfficeByCountry('USA');
+```
+
+1.c. countOrderByStatus
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE countOrderByStatus(
+    IN orderStatus VARCHAR(25),
+    OUT total INT
+)
+BEGIN
+    SELECT COUNT(*)
+    INTO total
+    FROM orders
+    WHERE status = orderStatus;
+END$$
+DELIMITER ;
+```
+
+1.d. Memanggil SP
+
+```sql
+CALL countOrderByStatus('Shipped', @total);
+SELECT @total;
+```
+
+1.e. setCounter
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE setCounter(
+    INOUT count INT(4),
+    IN inc INT(4)
+)
+BEGIN
+    SET count = count + inc;
+END$$
+DELIMITER ;
+```
+
+1.f. Menggunakan SP setCounter
+
+```sql
+SET @counter = 1;
+CALL setCounter(@counter, 1);
+CALL setCounter(@counter, 1);
+CALL setCounter(@counter, 5);
+SELECT @counter;
+```
+
+### LATIHAN 2 – IF
+
+2.a. getCustomerLevel
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE getCustomerLevel(
+    IN customerNumber INT,
+    OUT customerLevel VARCHAR(20)
+)
+BEGIN
+    DECLARE credit DECIMAL(10,2);
+    SELECT creditLimit INTO credit
+    FROM customers
+    WHERE customers.customerNumber = customerNumber;
+    IF credit > 50000 THEN
+        SET customerLevel = 'PLATINUM';
+    ELSEIF credit >= 10000 AND credit < 50000 THEN
+        SET customerLevel = 'GOLD';
+    ELSEIF credit < 10000 THEN
+        SET customerLevel = 'SILVER';
+    ELSE
+        SET customerLevel = NULL;
+    END IF;
+END$$
+DELIMITER ;
+```
+
+2.b. Memanggil SP
+
+```sql
+CALL getCustomerLevel(103, @customerLevel);
+SELECT @customerLevel;
+```
+
+### LATIHAN 3 – CASE
+
+3.a. getCustomerShipping
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE getCustomerShipping(
+    IN customerNumber INT,
+    OUT shipping VARCHAR(30)
+)
+BEGIN
+    DECLARE customerCountry VARCHAR(50);
+    SELECT country INTO customerCountry
+    FROM customers
+    WHERE customers.customerNumber = customerNumber;
+    CASE customerCountry
+        WHEN 'USA' THEN
+            SET shipping = '2-day Shipping';
+        WHEN 'Canada' THEN
+            SET shipping = '3-day Shipping';
+        ELSE
+            SET shipping = '5-day Shipping';
+    END CASE;
+END$$
+DELIMITER ;
+```
+
+3.b. Memanggil SP
+
+```sql
+CALL getCustomerShipping(112, @shipping);
+SELECT @shipping;
+```
+
+### LATIHAN 4
+
+4.a. Membuat tabel penerbit
+
+```sql
+CREATE TABLE penerbit (
+    kode_penerbit CHAR(4) PRIMARY KEY,
+    nama_penerbit VARCHAR(150),
+    kota_penerbit VARCHAR(100),
+    email_penerbit VARCHAR(200),
+    website_penerbit VARCHAR(200),
+    telepon_penerbit VARCHAR(20)
+);
+```
+
+4.b. tambahPenerbit
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE tambahPenerbit(
+    IN kode_penerbit CHAR(4),
+    IN nama_penerbit VARCHAR(150),
+    IN kota_penerbit VARCHAR(100),
+    IN email_penerbit VARCHAR(200),
+    IN website_penerbit VARCHAR(200),
+    IN telepon_penerbit VARCHAR(20)
+)
+BEGIN
+    INSERT INTO penerbit (
+        kode_penerbit,
+        nama_penerbit,
+        kota_penerbit,
+        email_penerbit,
+        website_penerbit,
+        telepon_penerbit
+    )
+    VALUES (
+        kode_penerbit,
+        nama_penerbit,
+        kota_penerbit,
+        email_penerbit,
+        website_penerbit,
+        telepon_penerbit
+    );
+END$$
+DELIMITER ;
+```
+
+Menggunakan SP:
+
+```sql
+CALL tambahPenerbit(
+    'P001',
+    'Gramedia',
+    'Jakarta',
+    'info@gramedia.com',
+    'www.gramedia.com',
+    '02112345678'
+);
+```
+
+4.c. hitungJumlahKota
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE hitungJumlahKota(
+    IN namaKota VARCHAR(100),
+    OUT jumlah INT
+)
+BEGIN
+    SELECT COUNT(*) INTO jumlah
+    FROM penerbit
+    WHERE kota_penerbit = namaKota;
+END$$
+DELIMITER ;
+```
+
+Menggunakan SP:
+
+```sql
+CALL hitungJumlahKota('Jakarta', @jumlah);
+SELECT @jumlah;
+```
+
+4.d. hapusPenerbit
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE hapusPenerbit(
+    IN email VARCHAR(200)
+)
+BEGIN
+    DELETE FROM penerbit
+    WHERE email_penerbit = email;
+END$$
+DELIMITER ;
+```
+
+Menggunakan SP:
+
+```sql
+CALL hapusPenerbit('info@gramedia.com');
+```
+
+Memeriksa hasil:
+
+```sql
+SELECT * FROM penerbit;
+```
